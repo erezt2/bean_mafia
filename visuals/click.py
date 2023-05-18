@@ -6,7 +6,7 @@ def none(self=None):
 
 
 class Click(Visual):
-    show_borders = True
+    show_borders = False
     class_list = []
     class_dict = {}
 
@@ -24,12 +24,14 @@ class Click(Visual):
         self.is_held = False
         self.held_frames = 0
         self.is_hovering = False
+        self.inside = False
         self.hover_frames = 0
         self.enabled = True
 
     def script(self):
         screen = self.screen
         inside = self.rect.collidepoint(*screen.mouse_pos)
+        self.inside = inside
         if inside:
             if self.is_hovering:
                 self.on_hover(self)
@@ -49,11 +51,11 @@ class Click(Visual):
 
         if self.is_held:
             if screen.mouseUp[1]:
-                self.on_release(self, inside)
+                self.on_release(self)
                 self.is_held = False
                 self.held_frames = 0
             else:
-                self.on_hold(self, inside)
+                self.on_hold(self)
                 self.held_frames += 1
 
     def draw(self):

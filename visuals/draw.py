@@ -6,7 +6,7 @@ from visuals.duper import duper
 class Draw(OrderedVisual):
     class_list = []
     class_dict = {}
-    show_hitboxes = True
+    show_hitboxes = False
 
     def __init__(self, screen, img, rect, alignment=(0.0, 0.0), dict_key="", class_name="", z_index=0.0, stick_to_camera=False,
                  dot_rotation=0.0, self_rotation=0.0):
