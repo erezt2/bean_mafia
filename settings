@@ -1,0 +1,4 @@
+!-- insert windows text scaling level in percentage (default: 150, usually 150 or 100)
+150
+!-- server byte size (default: 512, usually: a power of 2)
+4096
