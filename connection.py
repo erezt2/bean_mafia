@@ -34,16 +34,15 @@ class Connection:
         self.screen = screen
         v.conn = self
 
-        a = protocol.receive(skt)
-        print(a)
-        self.id, self.name = a
-        self.thread = threading.Thread(target=self.run, args=tuple())
-        if self.id is None:
+        hs = protocol.receive(skt)
+        if hs is None:
             Click.get_key("start").enabled = True
             Text.get_key("status").text = "connection failed"
             self.screen.Process(none, menu_delete_status, frames=100, dict_key="delete_status")
             screen.variables.conn = None
         else:
+            self.id, self.name = hs
+            self.thread = threading.Thread(target=self.run, args=tuple())
             screen.change_screen("game")
             self.screen.Text((self.name, "Arial", 1 / 35, (255, 255, 255)), (0.5, 0.5 - 1j / 20), (0.5, 0.65), "self_player",
                                 f"player_{self.id}", stick_to_camera=True, z_index=2)
@@ -51,31 +50,8 @@ class Connection:
             v.conn.send(["update_player_pos", v.player.get_player_desc()])
             self.thread.start()
 
-    # def tick(self):
-    #     read, _, _ = select.select([self.client], [self.client], [])
-    #     if read:
-    #         data = protocol.receive(read[0])
-    #         if data is None:
-    #             self.quit()
-    #         for _id in data:
-    #             if _id not in self.recv_data:
-    #                 self.recv_data[_id] = data[_id]
-    #             else:
-    #                 self.recv_data[_id] += data[_id]
-        # if write and self.send_data:
-        #     if self.send_data["|test"]:
-        #         print("AGAGAGAGA")
-        #     protocol.send(write[0], self.send_data)
-        #     self.send_data.used()
-
     def send(self, data):
         protocol.send(self.client, data)
-        # _, write, _ = select.select([], [self.client], [])
-        # if write:
-        #     write, = write
-        #     protocol.send(self.client, data)
-        # else:
-        #     self.cache.append(data)
 
     def run(self):
         while self.running:
@@ -89,14 +65,8 @@ class Connection:
             self.stored.clear()
         return stored
 
-    # def get(self, condition):
-    #     ret = []
-    #     for i in range(len(self.recv_data) - 1, -1, -1):
-    #         if condition(self.recv_data[i]):
-    #             ret.append(self.recv_data.pop(i))
-    #     return ret
-
     def quit(self):
+        print(1234)
         v = self.screen.variables
         Projectile.projectile_list.clear()
         self.running = False
@@ -104,7 +74,7 @@ class Connection:
         v.ip_inserted = ""
         v.conn = None
         if v.server is not None:
-            v.server.server.close()
+            v.server.close()
             v.stop_event.set()
             v.server = None
             v.stop_event = None

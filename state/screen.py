@@ -335,12 +335,7 @@ class Screen:
                 # Screen.screen_rect = pygame.Rect(0, 0, Screen.w, Screen.h)
                 # OGL.setup()
             if event.type == pygame.QUIT:
-                v = self.variables
-                if v.conn:
-                    v.conn.quit()
-                self.run = False
-                pygame.quit()
-                quit()
+                self.quit()
 
         if self.keysDown["F11"]:
             self.toggle_fullscreen()
@@ -410,6 +405,14 @@ class Screen:
 
     def Text(self, text, point, alignment=(0.0, 0.0), dict_key="", class_name="", z_index=0, stick_to_camera=False):
         return Text(self, text, point, alignment, dict_key, class_name, z_index, stick_to_camera)
+
+    def quit(self):
+        v = self.variables
+        if v.conn:
+            v.conn.quit()
+        self.run = False
+        pygame.quit()
+        quit()
 
     @property
     def scene(self):

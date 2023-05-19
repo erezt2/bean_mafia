@@ -126,13 +126,13 @@ class Projectile:
                     self.hit_mode == 2)):
                 # Variables.player.hp -= self.damage
                 # Variables.player.hp_display.w = 1/12 * (Variables.player.hp / 100)
-                v.conn.send(["reduce_hp", self.damage])
+                v.player.damage(self.damage)
             self.first_hit = False
             self.new_hit = False
         else:
             self.new_hit = True
 
-        if self.duration != -1 and self.frames >= self.duration:
+        if response or (self.duration != -1 and self.frames >= self.duration):
             try:
                 globals()[self.type + "_end"](self, response)
             except KeyError:

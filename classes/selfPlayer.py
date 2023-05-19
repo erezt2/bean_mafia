@@ -14,6 +14,17 @@ class SelfPlayer:
         self.retries = 0
         self.moved = False
         self.draw = Draw.get_key("self_player")
+        self.hp_bar = screen.Draw((0, 255, 0), (1/200, 1-1j/200, 1/3, 1/25), (0, 1), z_index=100, stick_to_camera=True)
+
+        self.hp = 100
+
+    def damage(self, damage):
+        self.screen.variables.conn.send(["reduce_hp", damage])
+        self.hp -= damage
+        if self.hp < 0:
+            self.hp = 0
+        self.hp_bar.w = 1/3 * self.hp / 100
+        print(self.hp_bar.w)
 
     def get_player_desc(self):
         return [self.screen.pos_with_camera(Draw.get_key("self_player")),
@@ -40,9 +51,6 @@ class SelfPlayer:
 
         if temp != [0, 0]:
             self.screen.move_camera(temp[0], temp[1] * 1j)
-            # Draw.draw_dict["self_player"].x += temp[0]
-            # Draw.draw_dict["self_player"].y += temp[1] * 1j
-            # Draw.draw_dict["self_player"].z = fake_atan(cal_len_h(Draw.draw_dict["self_player"].y / 50))
 
             Draw.get_key("self_player").z = fake_atan(
                 self.screen.cal_len_h((self.screen.camera_pos[1] + Draw.get_key("self_player").y) / 50))

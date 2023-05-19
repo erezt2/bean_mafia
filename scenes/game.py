@@ -16,6 +16,13 @@ def game_select_class(index):
     return func_wrapper
 
 
+def showcase_class(index):
+    def func_wrapper(self=None):
+        r = self.screen.resources
+        Draw.get_key("class_showcase").img = r.classes[index]
+    return func_wrapper
+
+
 def start(screen):
     r = screen.resources
     screen.Draw(r.map, (0, 0, 2, 2j), dict_key="bg", z_index=-100)
@@ -27,10 +34,10 @@ def start(screen):
     for i in range(l):
         screen.Draw(r.classes[i], (1.01 / 4 * 1j * (i % (-(-l // 2))), (i * 2 // l) / 2, 1 / 4 * 1j, 1 / 2), (0.0, 0.0),
                     "", "classes", stick_to_camera=True, z_index=100)
-
+    screen.Draw(r.classes[0], (1, 0, 1j/2, 1), (1, 0), dict_key="class_showcase", class_name="classes", stick_to_camera=True)
     for i in range(l):
         screen.Click((1.01 / 4 * 1j * (i % (-(-l // 2))), (i * 2 // l) / 2, 1 / 4 * 1j, 1 / 2), (0.0, 0.0), "",
-                     "classes", stick_to_camera=True, on_click=game_select_class(i))
+                     "classes", stick_to_camera=True, on_click=game_select_class(i), on_hover_start=showcase_class(i))
 
 
 def end(screen):
@@ -46,55 +53,12 @@ def tick(screen):
         Projectile(screen, -1, ("swordsman_atk", deg))
         v.conn.send(["add_projectile", ("swordsman_atk", deg)])
 
-    # try:
-    #     if Variables.multiplier and Network.iter is not None:
-    #         players, projectiles = Network.iter
-    #         for user in players:
-    #             if user[1] is None:
-    #                 try:
-    #                     Player.get_by_name(user[0]).delete()
-    #                 except IndexError:
-    #                     pass
-    #                 continue
-    #             try:
-    #                 self = Player.get_by_name(user[0])
-    #             except IndexError:
-    #                 self = Player(user[0])
-    #             self.update_pos(user[1], user[2], user[3])
-    #
-    # except TypeError:
-    #     Network.quit()
-    #     Text.text_dict["status"].text = "server closed"
-    #     Process(none, menu_delete_status, frames=120)
-    # user_data = UserData(
-    #     pos_with_camera(Draw.draw_dict["self_player"]),
-    #     str(SelfPlayer.animation // 4 + 1) + SelfPlayer.direction,
-    #     SelfPlayer.class_id,
-    # )
-    #
-    # # + - add, else replace
-    # Variables.conn.send_data += {
-    #     "=user_data": user_data,
-    #     "+projectiles": SelfPlayer.get_proj(),
-    #     "|test": keysDown["t"]
-    # }
-    # if keysDown["t"]:
-    #     Variables.test = time.time()
-    # if Variables.conn.send_data["|test"]:
-    #     print("AGAGAGAGA")
-
     stored = v.conn.get_stored()
+    if None in stored:
+        v.conn.quit()
+        return
+
     for _id, cmd, *args in stored:
-        # if _id == 0:
-        #     if _dict["=test"]:
-        #         print(time.time() - Variables.test)
-        #     continue
-        # if _dict["|test"]:
-        #     print("YAY")
-        # if "=stopped" in _dict:
-        #     Player.players[_id].delete()
-        #     del Variables.conn.recv_data[_id]
-        #     continue
         if cmd == "reduce_hp":
             player = Player.players[_id]
             player.hp -= args[0]
@@ -103,8 +67,8 @@ def tick(screen):
                 player.set_mode(1)
             player.hp_display.w = 1 / 12 * (player.hp / 100)
         elif cmd == "add_player":
-            print("id", _id, args[0])
             Player(screen, _id, args[0])
+            v.conn.send(["update_player_pos", v.player.get_player_desc()])
         elif cmd == "add_players":
             for arg in args:
                 Player(screen, *arg)
@@ -116,7 +80,6 @@ def tick(screen):
         elif cmd == "add_projectile":
             Projectile(screen, _id, args[0])
         elif cmd == "remove_player":
-            print("12345")
             Player.players[_id].delete()
         else:
             print("unknown command")

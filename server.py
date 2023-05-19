@@ -1,7 +1,5 @@
-import copy
-import socket, random, select, protocol
+import socket, random, protocol
 import threading
-import time
 
 
 class InverseFunc:  # two sided dictionary for convenience
@@ -73,6 +71,7 @@ class Server:
         self.users = InverseFunc(socket.socket, User)
         self.next_id = 1
         self.lock = threading.Lock()
+        self.run = True
 
         with open("settings", "r") as file:
             self.byte_size = int(file.readlines()[3])
@@ -100,8 +99,11 @@ class Server:
     #         self.send_to(current)
 
     def run_threads(self):
-        while True:
-            temp = self.server.accept()
+        while self.run:
+            try:
+                temp = self.server.accept()
+            except OSError:
+                break
             with self.lock:
                 client = temp[0]
                 self.users[client] = User(self, temp)
@@ -118,6 +120,13 @@ class Server:
             temp.broadcast([temp.id, "add_player", temp.name])
             temp.start()
 
+
+    def close(self):
+        self.run = False
+        self.server.close()
+        for c in self.users.get_two():
+            c.connection.close()
+            c.running = False
     # def run_client(self, connection):
     #     skt_read, skt_write, _ = select.select([connection], [connection], [])
     #
@@ -239,7 +248,6 @@ class User:
                 self.broadcast([self.id] + data)
 
     def close(self):
-        print("hello")
         self.broadcast([self.id, "remove_player"])
         with self.server.lock:
             del self.server.users[self]
