@@ -3,8 +3,6 @@ import socket, random, select, protocol
 import threading
 import time
 
-from information import *
-
 
 class InverseFunc:  # two sided dictionary for convenience
     def __init__(self, class1, class2):
@@ -212,7 +210,6 @@ class User:
         self.thread = None
         self.connected = True
         self.lock = threading.Lock()
-        self.recv_data = SmartDict()
         self.recv_changed = False
         self.players_data = {}
         self.projectiles = []

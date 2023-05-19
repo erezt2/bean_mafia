@@ -7,9 +7,11 @@ from state.variables import Variables
 from state.resources import Resources
 from visuals.draw import Draw
 from visuals.click import Click
+from visuals.orderedVisual import OrderedVisual
 from visuals.process import Process
 from visuals.text import Text
 
+import scenes.menu, scenes.game, scenes.i as _
 
 pygame.init()
 
@@ -19,6 +21,12 @@ def none(self=None):
 
 
 class Screen:
+    changes = {
+        "menu": scenes.menu,
+        "game": scenes.game,
+        "_": _,
+    }
+
     initial = 3
 
     def __init__(self):
@@ -35,7 +43,7 @@ class Screen:
 
         self.fullscreen = False
         self.run = True
-        self.screen = ""
+        self.screen = "_"
         self.frame = 0
         self.last_frame = 0
 
@@ -262,13 +270,138 @@ class Screen:
         dy = self.camera_pos[1] if obj.stick else 0
         return obj.x + dx, obj.y + dy
 
+    def key_list(self):
+        if True:
+            for reset_key in self.mouseDown:
+                self.mouseDown[reset_key] = False
+            for reset_key in self.mouseUp:
+                self.mouseUp[reset_key] = False
+            for reset_key in self.keysDown:
+                self.keysDown[reset_key] = False
+            for reset_key in self.keysUp:
+                self.keysUp[reset_key] = False
+
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.mouseDown[event.button] = True
+                self.mouseHeld[event.button] = True
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                self.mouseUp[event.button] = True
+                self.mouseHeld[event.button] = False
+
+            if event.type == pygame.KEYDOWN:
+                for key in self.keysList:
+                    if event.key == self.keysList[key]:
+                        self.keysDown[key] = True
+                        self.keysHeld[key] = True
+
+            if event.type == pygame.KEYUP:
+                for key in self.keysList:
+                    if event.key == self.keysList[key]:
+                        self.keysUp[key] = True
+                        self.keysHeld[key] = False
+
+            if event.type == pygame.VIDEORESIZE and not self.fullscreen:
+                temp = int(self.w)
+                event.w = max(event.w, 640)
+                if event.w != self.w:
+                    self.win = pygame.display.set_mode((event.w, int(event.w / self.aspect_ratio)),
+                                                       pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.HWSURFACE)
+                    self.w = event.w
+                    self.h = int(event.w / self.aspect_ratio)
+                else:
+                    self.win = pygame.display.set_mode((int(event.h * self.aspect_ratio), event.h),
+                                                       pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.HWSURFACE)
+                    self.w = int(event.h * self.aspect_ratio)
+                    self.h = event.h
+
+                for i in Text.class_list:
+                    i.size = i.size
+                    i.calc_rect()
+
+                for i in Click.class_list:
+                    i.calc_rect()
+
+                for i in Draw.class_list:
+                    if i.org_img is not None:
+                        i.img = i.org_img
+                        i.calc_rect()
+
+                # for i in Click.click_list:
+                #     i.scale(Screen.w / temp)
+                # for i in Text.text_list:
+                #     i.size = i.size
+                # Screen.screen_rect = pygame.Rect(0, 0, Screen.w, Screen.h)
+                # OGL.setup()
+            if event.type == pygame.QUIT:
+                v = self.variables
+                if v.conn:
+                    v.conn.quit()
+                self.run = False
+                pygame.quit()
+                quit()
+
+        if self.keysDown["F11"]:
+            self.toggle_fullscreen()
+
+    def toggle_fullscreen(self):
+        r = self.resources
+        self.fullscreen = not self.fullscreen
+        try:
+            Draw.get_key("windowed").img = r.fullscreen if self.fullscreen else r.windowed
+        except KeyError:
+            pass
+        if self.fullscreen:
+            self.win = pygame.display.set_mode(self.size, pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE)
+            self.w, self.h = self.size
+        else:
+            self.win = pygame.display.set_mode((int(self.size[0] / 2), int(self.size[1] / 2)),
+                                               pygame.RESIZABLE | pygame.DOUBLEBUF | pygame.HWSURFACE)
+            self.w = self.size[0] / 2
+            self.h = self.size[1] / 2
+
+        for i in Text.class_list:
+            i.size = i.size
+            i.calc_rect()
+
+        for i in Click.class_list:
+            i.calc_rect()
+
+        for i in Draw.class_list:
+            if i.org_img is not None:
+                i.img = i.org_img
+                i.calc_rect()
+
+        self.screen_rect = pygame.Rect(0, 0, self.w, self.h)
+        # OGL.setup()
+
+    def change_screen(self, _name):
+        OrderedVisual.z_sorted_list = []
+        Draw.class_list = []
+        Draw.class_dict = {}
+        Click.class_list = []
+        Click.class_dict = {}
+        Text.class_list = []
+        Text.class_dict = {}
+        Process.class_dict = {}
+        Process.class_list = []
+        if _name == self.screen:
+            return
+        self.camera_pos = (0.0, 0.0)
+        self.scene.end(self)
+        # globals()["end_" + self.screen](self)
+        self.screen = _name
+        self.scene.start(self)
+        # globals()["start_" + self.screen](self)
+
     def Click(self, rect, alignment=(0.0, 0.0), dict_key="", class_name="", stick_to_camera=False,
-                    on_hover_start=none, on_hover=none, on_hover_end=none, on_click=none, on_hold=none, on_release=none):
+              on_hover_start=none, on_hover=none, on_hover_end=none, on_click=none, on_hold=none, on_release=none):
         return Click(self, rect, alignment, dict_key, class_name, stick_to_camera,
-                        on_hover_start, on_hover, on_hover_end, on_click, on_hold, on_release)
+                     on_hover_start, on_hover, on_hover_end, on_click, on_hold, on_release)
 
     def Draw(self, img, rect, alignment=(0.0, 0.0), dict_key="", class_name="", z_index=0.0,
-                 stick_to_camera=False, dot_rotation=0.0, self_rotation=0.0):
+             stick_to_camera=False, dot_rotation=0.0, self_rotation=0.0):
         return Draw(self, img, rect, alignment, dict_key, class_name, z_index,
                     stick_to_camera, dot_rotation, self_rotation)
 
@@ -277,3 +410,7 @@ class Screen:
 
     def Text(self, text, point, alignment=(0.0, 0.0), dict_key="", class_name="", z_index=0, stick_to_camera=False):
         return Text(self, text, point, alignment, dict_key, class_name, z_index, stick_to_camera)
+
+    @property
+    def scene(self):
+        return self.changes[self.screen]

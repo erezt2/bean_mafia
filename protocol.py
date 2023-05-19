@@ -1,5 +1,4 @@
-import pickle, socket
-from information import *
+import pickle
 
 
 BYTES_LENGTH = 3
