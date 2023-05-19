@@ -1,2 +1,4 @@
 venv
 blank
+__pycache__/
+*.py[cod]
