@@ -32,6 +32,14 @@ def swordsman_atk_exist(self):
         self.info["pos"] = (self.creator.draw.x, self.creator.draw.y)
 
 
+def swordsman_atk_e_exist(self):
+    swordsman_atk_exist(self)
+
+
+def swordsman_atk_e_start(self):
+    swordsman_atk_start(self)
+
+
 class Projectile:
     # projectile_stats= {
     #   "stats": [damage, knockback, stun, duration, hit_mode]
@@ -43,6 +51,9 @@ class Projectile:
     projectile_types = {
         "swordsman_atk": ((8, 2, 0, 12, 0),
                           (open_texture("resources/projectiles/swordsman_sword.png", flip_y=True), 1 / 28),
+                          (0.025, 7, 0)),
+        "swordsman_atk_e": ((12, 2, 0, 12, 0),
+                          (open_texture("resources/projectiles/swordsman_sword_e.png", flip_y=True), 1 / 28),
                           (0.025, 7, 0))
     }
 

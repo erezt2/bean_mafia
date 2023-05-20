@@ -14,7 +14,7 @@ class SelfPlayer:
         self.retries = 0
         self.moved = False
         self.draw = Draw.get_key("self_player")
-        self.hp_bar = screen.Draw((0, 255, 0), (1/200, 1-1j/200, 1/3, 1/25), (0, 1), z_index=100, stick_to_camera=True)
+        self.hp_bar = screen.Draw((0, 255, 0), (1/200, 1j/200, 1/3, 1/25), z_index=100, stick_to_camera=True)
 
         self.hp = 100
 

@@ -31,8 +31,8 @@ class Process(Base):
         if self not in self.__class__.class_list:
             return
         if self.frame < self.frames or self.frames == -1:
-            self.func(self)
             self.frame += 1
+            self.func(self)
         else:
             self.remove()
 

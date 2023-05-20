@@ -11,4 +11,5 @@ class Variables:
     server = None
     stop_event = None
     player = None
+    freeze_player = False
     test = 0

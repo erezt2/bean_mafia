@@ -326,7 +326,7 @@ class Screen:
                 for i in Draw.class_list:
                     if i.org_img is not None:
                         i.img = i.org_img
-                        i.calc_rect()
+                    i.calc_rect()
 
                 # for i in Click.click_list:
                 #     i.scale(Screen.w / temp)

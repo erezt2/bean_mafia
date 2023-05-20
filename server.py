@@ -120,7 +120,6 @@ class Server:
             temp.broadcast([temp.id, "add_player", temp.name])
             temp.start()
 
-
     def close(self):
         self.run = False
         self.server.close()
