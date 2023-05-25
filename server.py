@@ -109,6 +109,7 @@ class Server:
                 self.users[client] = User(self, temp)
                 self.next_id += 1
                 temp = self.users[client]
+            temp.start()
             protocol.send(client, (temp.id, temp.name))
             print(f"{str(temp.address)} user {temp.name} connected")
             lst = [0, "add_players"]
@@ -118,7 +119,6 @@ class Server:
                 lst.append([p.id, p.name])
             temp.send(lst)
             temp.broadcast([temp.id, "add_player", temp.name])
-            temp.start()
 
     def close(self):
         self.run = False

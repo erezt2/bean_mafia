@@ -16,11 +16,11 @@ class Draw(OrderedVisual):
                 raise TypeError("both width and height are None")
             else:
                 _w = rect[2]
-                _h = rect[2] / img.get_width() * img.get_height()
+                _h = rect[2] / img.get_width() * img.get_height() * 1j
         else:
             if rect[2] is None:
                 _h = rect[3]
-                _w = rect[3] / img.get_height() * img.get_width()
+                _w = rect[3] / img.get_height() * img.get_width() * 1j
             else:
                 _w = rect[2]
                 _h = rect[3]

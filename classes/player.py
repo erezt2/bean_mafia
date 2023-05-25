@@ -10,16 +10,17 @@ class Player:
         self.screen = screen
         self.id = _id
         self.hp = 100
+
         self.name = _name
         self.draw = self.screen.Draw(screen.resources.walkcolor0l, (0, 0, 1 / 15, 1.25j / 15), (0.5, 0.5),
                                      f"player_{_id}", f"player_{_id}")
         self.draw.z = fake_atan(screen.cal_len_h(Draw.get_key("self_player").y / 50))
         self.text_name = self.screen.Text((_name, "arial", 1 / 35, (255, 255, 255)), (0, 0), (0.5, 0.65),
-                                          f"player_{_id}", f"player_{_id}", z_index=-30)
+                                          f"player_{_id}", f"player_{_id}", z_index=-15) # z=-30
         self.text_class = self.screen.Text(("", "arial", 1 / 35, (255, 255, 255)), (0, 0), (0.5, 0),
-                                           f"player_class_{_id}", f"player_{_id}", z_index=-30)
+                                           f"player_class_{_id}", f"player_{_id}", z_index=-15)
         self.hp_display = self.screen.Draw((0, 255, 0), (0, 0, 1 / 12, 1 / 45), (0.5, 0.5), f"player_hp_{_id}",
-                                           f"player_{_id}", z_index=-30)
+                                           f"player_{_id}", z_index=15)
         self.mode = 0
         Player.players[_id] = self
 

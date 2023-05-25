@@ -50,35 +50,71 @@ def attack_q_cooldown_exists(self):
 
 def sw_e_end(self):
     v = self.screen.variables
-    v.player.vel = 2
+    v.player.vel -= 0.6
+
+
+def sw_q_end(self):
+    v = self.screen.variables
+    v.player.vel += 0.3
+    v.player.defense -= 8.5
+
+
+def mg_q_end(self):
+    v = self.screen.variables
+    v.player.vel -= 0.6
 
 
 def swordsman_handle(screen):
     v = screen.variables
 
-    if not Process.get_key("normal_attack") and screen.mouseDown[1]:
+    if screen.mouseDown[1] and not Process.get_key("q_attack_exists") and not Process.get_key("normal_attack"):
         deg = math.atan2(screen.mouse_pos[1] / screen.h - 0.5, screen.mouse_pos[0] / screen.w - 0.5)
-        v.player.current_projectiles.append(("swordsman_atk", deg))
+        # v.player.current_projectiles.append(("swordsman_atk", deg))
 
         proj = "swordsman_atk"
         if Process.key_exists("e_attack_exists"):
             proj = "swordsman_atk_e"
         Projectile(screen, -1, (proj, deg))
-        v.conn.send(["add_projectile", (proj, deg)])
+        # v.conn.send(["add_projectile", (proj, deg)])
 
         screen.Process(frames=4, dict_key="normal_attack")
 
     if not Process.get_key("e_attack") and screen.keysDown["e"]:
         screen.Process(attack_e_cooldown_exists, none, attack_e_cooldown_start, frames=450, dict_key="e_attack")
         screen.Process(remove_func=sw_e_end, frames=90, dict_key="e_attack_exists")
-        v.player.vel = 3
+        v.player.vel += 0.6
 
     if not Process.get_key("q_attack") and screen.keysDown["q"]:
         screen.Process(attack_q_cooldown_exists, none, attack_q_cooldown_start, frames=300, dict_key="q_attack")
+        screen.Process(remove_func=sw_q_end, frames=80, dict_key="q_attack_exists")
+        v.player.vel -= 0.3
+        v.player.defense += 8.5
+
+
+def magician_handle(screen):
+    v = screen.variables
+    if screen.mouseDown[1] and not Process.key_exists("e_attack_exists") and not Process.get_key("normal_attack"):
+        deg = math.atan2(screen.mouse_pos[1] / screen.h - 0.5, screen.mouse_pos[0] / screen.w - 0.5)
+        proj = "magician_atk"
+        Projectile(screen, -1, (proj, deg))
+        # v.conn.send(["add_projectile", (proj, deg)])
+        Projectile(screen, -1, (proj, deg))
+        # v.conn.send(["add_projectile", (proj, deg)])
+        screen.Process(frames=6, dict_key="normal_attack")
+
+    if not Process.get_key("e_attack") and screen.keysDown["e"]:
+        screen.Process(attack_e_cooldown_exists, none, attack_e_cooldown_start, frames=450, dict_key="e_attack")
+        screen.Process(frames=30, dict_key="e_attack_exists")
+        Projectile(screen, -1, ("magician_knockback", 0))
+
+    if not Process.get_key("q_attack") and screen.keysDown["q"]:
+        screen.Process(attack_q_cooldown_exists, none, attack_q_cooldown_start, frames=300, dict_key="q_attack")
+        screen.Process(remove_func=mg_q_end, frames=80, dict_key="q_attack_exists")
+        v.player.vel += 0.6
 
 
 # ["archer", "assassin", "magician", "marksman", "spearsman", "swordsman", "darkmage", "glasscannon", "ninja", "priest"]
-class_handlers = [none, none, none, none, none, swordsman_handle, none, none, none, none]
+class_handlers = [none, none, magician_handle, none, none, swordsman_handle, none, none, none, none]
 
 
 def start(screen):
@@ -119,7 +155,11 @@ def tick(screen):
     if not v.freeze_player:
         v.player.update_pos()
 
-    class_handlers[v.player.class_id](screen)
+    if screen.keysDown["p"]:
+        print(v.player.mode)
+
+    if not v.player.stun and v.player.mode == 0:
+        class_handlers[v.player.class_id](screen)
 
     stored = v.conn.get_stored()
     if None in stored:
