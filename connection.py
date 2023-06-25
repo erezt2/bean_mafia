@@ -30,7 +30,7 @@ class Connection:
         self.running = True
         self.lock = threading.Lock()
 
-        v = screen.variables
+        v = screen.info("variables")
         self.screen = screen
         v.conn = self
 
@@ -67,7 +67,7 @@ class Connection:
 
     def quit(self):
         print(1234)
-        v = self.screen.variables
+        v = self.screen.info("variables")
         Projectile.projectile_list.clear()
         self.running = False
         self.client.close()

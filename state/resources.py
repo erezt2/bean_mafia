@@ -1,9 +1,9 @@
 from state.functions import open_texture
 
 
-class Resources:
+class _Resources:
     background = open_texture("resources/images/background.png")
-    text_logo = open_texture("resources/images/logo.png")
+
     play_btn = open_texture("resources/images/play.png")
     go_back_btn = open_texture("resources/images/go-back.png")
     settings_btn = open_texture("resources/images/settings.png")

@@ -24,7 +24,7 @@ class SelfPlayer:
     def damage(self, damage):
         damage /= self.defense
         if damage != 0:
-            self.screen.variables.conn.send(["reduce_hp", damage])
+            self.screen.info("variables").conn.send(["reduce_hp", damage])
             self.hp -= damage
             if self.hp <= 0:
                 self.hp = 0
@@ -40,8 +40,8 @@ class SelfPlayer:
         if self.stun:
             self.stun = max(self.stun - 1, 0)
             return
-        r = self.screen.resources
-        v = self.screen.variables
+        r = self.screen.info("resources")
+        v = self.screen.info("variables")
         temp = [0, 0]
         if self.screen.keysHeld["w"]:
             temp[1] -= self.vel / 100
@@ -72,8 +72,8 @@ class SelfPlayer:
                 pass
 
     def move(self, x, y):
-        r = self.screen.resources
-        v = self.screen.variables
+        r = self.screen.info("resources")
+        v = self.screen.info("variables")
 
         self.screen.move_camera(x, y * 1j)
         Draw.get_key("self_player").z = fake_atan(

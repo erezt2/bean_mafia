@@ -56,10 +56,10 @@ class Projectile:
     # hit_mode: 0-once, 1-once per touch, 2-continuous
     # death func gets info of how the projectile died
     projectile_types = {
-        "swordsman_atk": ((8, 1/30, 0, 12, 0, False),
+        "swordsman_atk": ((8, 1/30, 0, 12, 0, True),
                           (open_texture("resources/projectiles/swordsman_sword.png", flip_y=True, size=(256, 850)), 1 / 28),
                           (0.025, 7, 0, (0, 1))),
-        "swordsman_atk_e": ((12, 1/30, 0, 12, 0, False),
+        "swordsman_atk_e": ((12, 1/30, 0, 12, 0, True),
                           (open_texture("resources/projectiles/swordsman_sword_e.png", flip_y=True, size=(256, 850)), 1 / 28),
                           (0.025, 7, 0, (0, 1))),
         "aura_red": ((0, 0, 0, 90, 2, False),
@@ -135,7 +135,7 @@ class Projectile:
         self.stop = False
 
         if self.creator is None:
-            screen.variables.conn.send(["add_projectile", (self.type, self.angle)])
+            screen.info("variables").conn.send(["add_projectile", (self.type, self.angle)])
 
         try:
             globals()[self.type + "_start"](self)
@@ -143,7 +143,7 @@ class Projectile:
             pass
 
     def script(self):
-        v = self.screen.variables
+        v = self.screen.info("variables")
         self.draw.x += Game.dt * self.vx
         self.draw.y += Game.dt * self.vy
         self.draw.d_rot += self.angular * Game.dt

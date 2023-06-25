@@ -1,6 +1,6 @@
 
 
-class Variables:
+class _Variables:
     menu_settings_open = False
     sound = True
     music = True

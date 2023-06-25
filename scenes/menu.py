@@ -5,6 +5,7 @@ from visuals.process import Process
 from visuals.text import Text
 from classes.shootingStar import ShootingStar
 from connection import Connection
+from state.functions import open_texture
 import protocol
 
 PI = 3.14159265359
@@ -15,8 +16,8 @@ def none(self=None):
 
 
 def toggle_sound(self=None):
-    v = self.screen.variables
-    r = self.screen.resources
+    v = self.screen.info("variables")
+    r = self.screen.info("resources")
 
     v.sound = not v.sound
     try:
@@ -26,8 +27,8 @@ def toggle_sound(self=None):
 
 
 def toggle_music(self=None):
-    v = self.screen.variables
-    r = self.screen.resources
+    v = self.screen.info("variables")
+    r = self.screen.info("resources")
 
     v.music = not v.music
     try:
@@ -50,15 +51,15 @@ def menu_retract_finish(self=None):
 
 
 def menu_backspace_combo(self=None):
-    self.screen.variables.backspace_combo = False
+    self.screen.info("variables").backspace_combo = False
 
 
 def menu_backspace_combo_allow(self=None):
-    self.screen.variables.backspace_combo = True
+    self.screen.info("variables").backspace_combo = True
 
 
 def menu_start_game(self=None):
-    v = self.screen.variables
+    v = self.screen.info("variables")
     _server = server.Server()
     v.server = _server
     v.stop_event = threading.Event()
@@ -98,7 +99,7 @@ def menu_white(self=None):
 
 
 def menu_connect(self=None):
-    v = self.screen.variables
+    v = self.screen.info("variables")
     if Process.key_exists("delete_status"):
         Process.remove_by_key("delete_status") # ,False
     Click.get_key("start").enabled = False
@@ -121,8 +122,9 @@ def menu_connect(self=None):
 
 
 def menu_open_settings(self=None):
-    v = self.screen.variables
-    r = self.screen.resources
+
+    v = self.screen.info("variables")
+    r = self.screen.info("resources")
     if v.menu_settings_open:
         self.screen.Process(menu_retract_settings, menu_retract_finish, none, 9, "sbgr")
     else:
@@ -178,11 +180,11 @@ def menu_s_white(self=None):
     self.screen.Process(menu_retract_settings, menu_retract_finish, none, 9, "sbgr")
     if Process.key_exists("sbg"):
         Process.remove_by_key("sbg")
-    self.screen.variables.menu_settings_open = False
+    self.screen.info("variables").menu_settings_open = False
 
 
 def test_change(self=None):
-    r = self.screen.resources
+    r = self.screen.info("resources")
     temp = self.frame // 5 % 4
     if temp == 0:
         Draw.get_key("test1").img = r.walkcolor1r
@@ -194,8 +196,38 @@ def test_change(self=None):
         Draw.get_key("test1").img = r.walkcolor4r
 
 
+def add_resources(self):
+    r = self.info
+    self.enabled = False
+
+    r.background = open_texture("resources/images/background.png")
+    r.text_logo = open_texture("resources/images/logo.png")
+    r.play_btn = open_texture("resources/images/play.png")
+    r.go_back_btn = open_texture("resources/images/go-back.png")
+    r.settings_btn = open_texture("resources/images/settings.png")
+    r.settings_back = open_texture("resources/images/settings_background.png")
+    r.note = open_texture("resources/images/note.png")
+    r.no_note = open_texture("resources/images/no_note.png")
+    r.double_note = open_texture("resources/images/double_note.png")
+    r.no_double_note = open_texture("resources/images/no_double_note.png")
+    r.windowed = open_texture("resources/images/windowed.png")
+    r.fullscreen = open_texture("resources/images/fullscreen.png")
+    r.solo_play = open_texture("resources/images/soloplay.png")
+
+    r.walkcolor1r = open_texture("resources/images/walkcolor1.png")
+    r.walkcolor2r = open_texture("resources/images/walkcolor2.png")
+    r.walkcolor3r = open_texture("resources/images/walkcolor3.png")
+    r.walkcolor4r = open_texture("resources/images/walkcolor4.png")
+    r.walkcolor1l = open_texture("resources/images/walkcolor1.png", True, False)
+    r.walkcolor2l = open_texture("resources/images/walkcolor2.png", True, False)
+    r.walkcolor3l = open_texture("resources/images/walkcolor3.png", True, False)
+    r.walkcolor4l = open_texture("resources/images/walkcolor4.png", True, False)
+    r.walkcolor0r = open_texture("resources/images/idle.png")
+    r.walkcolor0l = open_texture("resources/images/idle.png", True, False)
+
+
 def start(screen):
-    r = screen.resources
+    r = screen.Process(dict_key="resources", add_func=add_resources).info
 
     screen.Text(("by erez", "Aharoni", 1 / 60, (0, 0, 0)), (1, 1), (1.02, 1))
     screen.Click([1 / 2, 1 - 1j / 10, 1 / 6, 1j / 8], (0.5, 0.5), "start", on_hover_start=menu_green, on_hover_end=menu_white, on_click=menu_connect)
@@ -220,7 +252,7 @@ def end(screen):
 
 
 def tick(screen):
-    v = screen.variables
+    v = screen.info("variables")
 
     if screen.frame % 2 == 0:
         ShootingStar(screen)

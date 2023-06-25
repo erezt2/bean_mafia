@@ -1,4 +1,5 @@
 from visuals.base import Base
+from visuals.variable import Variable
 
 
 def none(self=None):
@@ -10,7 +11,6 @@ class Process(Base):
     class_dict = {}
 
     def __init__(self, screen, func=none, remove_func=none, add_func=none, frames=-1, dict_key="", class_name="", arg=None):
-        add_func(self)
         if dict_key in self.__class__.class_dict:
             return
         if arg is None:
@@ -22,12 +22,17 @@ class Process(Base):
         self.frame = 0
         self.arg = arg
         self.enabled = True
+        self.immune = False
+        self.info = Variable()
+        add_func(self)
 
     def remove(self):
         self.remove_func(self)
         super().remove()
 
     def script(self):
+        if not self.enabled:
+            return
         if self not in self.__class__.class_list:
             return
         if self.frame < self.frames or self.frames == -1:

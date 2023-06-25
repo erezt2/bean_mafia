@@ -8,11 +8,12 @@ class Player:
 
     def __init__(self, screen, _id, _name):
         self.screen = screen
+        r = screen.info("resources")
         self.id = _id
         self.hp = 100
 
         self.name = _name
-        self.draw = self.screen.Draw(screen.resources.walkcolor0l, (0, 0, 1 / 15, 1.25j / 15), (0.5, 0.5),
+        self.draw = self.screen.Draw(r.walkcolor0l, (0, 0, 1 / 15, 1.25j / 15), (0.5, 0.5),
                                      f"player_{_id}", f"player_{_id}")
         self.draw.z = fake_atan(screen.cal_len_h(Draw.get_key("self_player").y / 50))
         self.text_name = self.screen.Text((_name, "arial", 1 / 35, (255, 255, 255)), (0, 0), (0.5, 0.65),
@@ -32,7 +33,7 @@ class Player:
         self.hp -= hp
 
     def update_pos(self, pos, animation, class_id):
-        r = self.screen.resources
+        r = self.screen.info("resources")
         if self.mode != 0:
             return
         if r.cls_list[class_id] != self.text_class.text:

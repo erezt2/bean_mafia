@@ -3,8 +3,6 @@ from state.functions import *
 import pygame
 from shapely.geometry import Polygon
 import math
-from state.variables import Variables
-from state.resources import Resources
 from visuals.draw import Draw
 from visuals.click import Click
 from visuals.orderedVisual import OrderedVisual
@@ -142,8 +140,12 @@ class Screen:
         self.mouseUp = {key + 1: False for key in range(7)}
         self.keysUp = {key: False for key in self.keysList}
 
-        self.variables = Variables
-        self.resources = Resources
+        # self.variables = Variables
+        # self.resources = Resources
+
+    @staticmethod
+    def info(key):
+        return Process.get_key(key).info
 
     def move_camera(self, x, y):
         self.camera_pos = (self.camera_pos[0] + x, self.camera_pos[1] + y)
@@ -379,8 +381,8 @@ class Screen:
         Click.class_dict = {}
         Text.class_list = []
         Text.class_dict = {}
-        Process.class_dict = {}
-        Process.class_list = []
+        Process.class_dict = {key: value for key, value in Process.class_dict.items() if value.immune}
+        Process.class_list = [val for val in Process.class_list if val.immune]
         if _name == self.screen:
             return
         self.camera_pos = (0.0, 0.0)
@@ -407,7 +409,7 @@ class Screen:
         return Text(self, text, point, alignment, dict_key, class_name, z_index, stick_to_camera)
 
     def quit(self):
-        v = self.variables
+        v = self.info("variables")
         if v.conn:
             v.conn.quit()
         self.run = False

@@ -4,6 +4,7 @@ from visuals.draw import Draw
 from visuals.click import Click
 from state.functions import fake_atan
 from visuals.process import Process
+from state.functions import open_texture
 import math
 
 
@@ -13,7 +14,7 @@ def none(s):
 
 def game_select_class(index):
     def func_wrapper(self=None):
-        v = self.screen.variables
+        v = self.screen.info("variables")
         v.player.class_id = index
         Click.remove_by_class("classes")
         Draw.remove_by_class("classes")
@@ -23,7 +24,7 @@ def game_select_class(index):
 
 def showcase_class(index):
     def func_wrapper(self=None):
-        r = self.screen.resources
+        r = self.screen.info("resources")
         Draw.get_key("class_showcase").img = r.classes[index]
     return func_wrapper
 
@@ -49,23 +50,23 @@ def attack_q_cooldown_exists(self):
 
 
 def sw_e_end(self):
-    v = self.screen.variables
+    v = self.screen.info("variables")
     v.player.vel -= 0.6
 
 
 def sw_q_end(self):
-    v = self.screen.variables
+    v = self.screen.info("variables")
     v.player.vel += 0.3
     v.player.defense -= 8.5
 
 
 def mg_q_end(self):
-    v = self.screen.variables
+    v = self.screen.info("variables")
     v.player.vel -= 0.6
 
 
 def swordsman_handle(screen):
-    v = screen.variables
+    v = screen.info("variables")
 
     if screen.mouseDown[1] and not Process.get_key("q_attack_exists") and not Process.get_key("normal_attack"):
         deg = math.atan2(screen.mouse_pos[1] / screen.h - 0.5, screen.mouse_pos[0] / screen.w - 0.5)
@@ -92,7 +93,7 @@ def swordsman_handle(screen):
 
 
 def magician_handle(screen):
-    v = screen.variables
+    v = screen.info("variables")
     if screen.mouseDown[1] and not Process.key_exists("e_attack_exists") and not Process.get_key("normal_attack"):
         deg = math.atan2(screen.mouse_pos[1] / screen.h - 0.5, screen.mouse_pos[0] / screen.w - 0.5)
         proj = "magician_atk"
@@ -117,9 +118,42 @@ def magician_handle(screen):
 class_handlers = [none, none, magician_handle, none, none, swordsman_handle, none, none, none, none]
 
 
+def add_resources(self):
+    r = self.info
+    self.enabled = False
+
+    r.cls_list = ["archer", "assassin", "magician", "marksman", "spearsman", "swordsman", "darkmage", "glasscannon",
+                "ninja", "priest"]
+    r.classes = [open_texture(f"resources/classes/{cls}.png") for cls in r.cls_list]
+    r.map = open_texture("resources/images/map.png")
+
+    r.walkcolor1r = open_texture("resources/images/walkcolor1.png")
+    r.walkcolor2r = open_texture("resources/images/walkcolor2.png")
+    r.walkcolor3r = open_texture("resources/images/walkcolor3.png")
+    r.walkcolor4r = open_texture("resources/images/walkcolor4.png")
+    r.walkcolor1l = open_texture("resources/images/walkcolor1.png", True, False)
+    r.walkcolor2l = open_texture("resources/images/walkcolor2.png", True, False)
+    r.walkcolor3l = open_texture("resources/images/walkcolor3.png", True, False)
+    r.walkcolor4l = open_texture("resources/images/walkcolor4.png", True, False)
+    r.walkcolor0r = open_texture("resources/images/idle.png")
+    r.walkcolor0l = open_texture("resources/images/idle.png", True, False)
+    r.animation = {
+        "1l": r.walkcolor1l,
+        "2l": r.walkcolor2l,
+        "3l": r.walkcolor3l,
+        "4l": r.walkcolor4l,
+        "1r": r.walkcolor1r,
+        "2r": r.walkcolor2r,
+        "3r": r.walkcolor3r,
+        "4r": r.walkcolor4r,
+        "0r": r.walkcolor0r,
+        "0l": r.walkcolor0l,
+    }
+
+
 def start(screen):
-    r = screen.resources
-    v = screen.variables
+    v = screen.info("variables")
+    r = screen.Process(dict_key="resources", add_func=add_resources).info
 
     v.freeze_player = True
     screen.Draw(r.map, (0, 0, 2, 2j), dict_key="bg", z_index=-100)
@@ -150,7 +184,7 @@ def end(screen):
 
 
 def tick(screen):
-    v = screen.variables
+    v = screen.info("variables")
 
     if not v.freeze_player:
         v.player.update_pos()
