@@ -118,7 +118,7 @@ def menu_connect(self=None):
     except socket.gaierror:
         Click.get_key("start").enabled = True
         Text.get_key("status").text = "invalid ip address"
-        self.screenProcess(none, menu_delete_status, frames=100, dict_key="delete_status")
+        self.screen.Process(none, menu_delete_status, frames=100, dict_key="delete_status")
 
 
 def menu_open_settings(self=None):
